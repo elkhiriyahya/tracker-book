@@ -59,13 +59,15 @@ export default function SearchScreen({ userId, onBookAdded }: SearchScreenProps)
     try {
       // First: Upsert the book details into the books table
       const { error: bookError } = await supabase.from('books').upsert(
-        {
-          id: book.id,
-          title: title || 'Untitled',
-          author,
-          cover_url: coverUrl,
-          total_pages: pageCount || null,
-        },
+        [
+          {
+            id: book.id,
+            title: title || 'Untitled',
+            author,
+            cover_url: coverUrl,
+            total_pages: pageCount || null,
+          },
+        ],
         { onConflict: 'id' }
       );
 
@@ -79,8 +81,9 @@ export default function SearchScreen({ userId, onBookAdded }: SearchScreenProps)
       const { error: userBookError } = await supabase.from('user_books').insert({
         user_id: userId,
         book_id: book.id,
-        status: 'want_to_read',
+        status: 'want_to_read' as const, // <-- Tells TS this is exactly 'want_to_read'
         progress_page: 0,
+        rating: null, // <-- Added because rating is required in your types.ts
       });
 
       if (userBookError) {
