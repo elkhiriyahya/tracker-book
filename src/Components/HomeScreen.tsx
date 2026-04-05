@@ -44,29 +44,29 @@ export default function HomeScreen({ userId, onSelectBook, refreshTrigger }: Hom
   const [activeTab, setActiveTab] = useState<string>('reading');
 
   useEffect(() => {
+    const fetchUserBooks = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('user_books')
+          .select('id, status, progress_page, rating, books(id, title, author, cover_url, total_pages)')
+          .eq('user_id', userId);
+
+        if (error) {
+          console.error('Error fetching books:', error);
+          return;
+        }
+
+        setBooks(data as unknown as UserBook[]);
+      } catch (err) {
+        console.error('Error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUserBooks();
   }, [userId, refreshTrigger]);
-
-  const fetchUserBooks = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('user_books')
-        .select('id, status, progress_page, rating, books(id, title, author, cover_url, total_pages)')
-        .eq('user_id', userId);
-
-      if (error) {
-        console.error('Error fetching books:', error);
-        return;
-      }
-
-      setBooks(data as unknown as UserBook[]);
-    } catch (err) {
-      console.error('Error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filterBooks = (status: BookStatus | 'all') => {
     if (status === 'all') return books;

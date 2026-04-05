@@ -132,7 +132,11 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                   disabled={loading}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (e.key === 'Enter') {
-                      isSignUp ? handleSignUp() : handleSignIn();
+                      if (isSignUp) {
+                        handleSignUp();
+                      } else {
+                        handleSignIn();
+                      }
                     }
                   }}
                 />
